@@ -1,0 +1,7 @@
+INSERT INTO category (name, image) VALUES ('Clothing and Accessories', 'https://media.istockphoto.com/id/1208148708/photo/polka-dot-summer-brown-dress-suede-wedge-sandals-eco-straw-tote-bag-cosmetics-on-a-light.jpg?s=612x612&w=0&k=20&c=9Y135GYKHLlPotGIfynBbMPhXNbYeuDuFzreL_nfDE8=');
+
+
+INSERT INTO category (name, image) VALUES ('Personal Care', 'https://www.meghantelpner.com/wp-content/uploads/2017/03/Ingredients-to-avoid-in-person-care.jpg');
+
+INSERT INTO category (name, image) VALUES ('Grocery', 'https://cdn.britannica.com/17/196817-050-6A15DAC3/vegetables.jpg');
+
