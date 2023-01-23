@@ -77,10 +77,10 @@ if (mysqli_num_rows($result) > 0) {
 
     <main class="col-md-12 ms-sm-auto col-lg-12 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Categories</h1>
+        <h1 class="h2">Lists</h1>
       </div>  
         <div class="d-flex justify-content-end col-12 col-sm-12">
-          <button class="btn btn-primary">Create</button>
+          <a href="./createList.php" class="btn btn-primary">Create a List</a>
         </div>
         <div class="d-flex justify-content-center col-12 col-sm-12">
           <?php if (mysqli_num_rows($categories) > 0 ): ?>
