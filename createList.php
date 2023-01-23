@@ -40,10 +40,11 @@ if (mysqli_num_rows($result) > 0) {
 
     if($_GET['Categories']){
       if($_GET['Search']){     
+        $templateName = $_GET['templateName'];
         $categoryID = intval($_GET['Categories']);
         $searchValue= $_GET['Search'];
         $formatQuery = '%'.$searchValue.'%';
-        $sql = "SELECT * FROM product WHERE id = $categoryID AND name LIKE '$formatQuery'";
+        $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
         $products = mysqli_query($conn, $sql);
       }
     }
@@ -58,7 +59,7 @@ if (mysqli_num_rows($result) > 0) {
 
 }
 
-
+var_dump($_GET['Product']);
 ?>
 
 
@@ -89,17 +90,22 @@ if (mysqli_num_rows($result) > 0) {
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Create a Lists</h1>
       </div>
-      <form>
+      <form onchange="this.form.submit();">
         <div class="mb-3">
           <label for="exampleInputEmail1" class="form-label">Template Name</label>
-          <input type="text" class="form-control">
+          <input type="text" value="<?php echo $templateName; ?>" name="templateName" class="form-control">
         </div>
         <div class="mb-3">
           <label class="form-label">Categories</label>
-              <select class="form-select" name="Categories" aria-label="Default select example" onchange="this.form.submit();">
+              <select class="form-select" name="Categories" aria-label="Default select example">
                 <?php if (mysqli_num_rows($categories) > 0 ): ?>
                   <?php foreach($categories as $key=>$row): ?>
-                    <option value="<?php echo $row["id"] ?>"><?php echo $row["name"] ?></option>
+                    <?php if (intval($_GET['Categories']) == $row["id"]): ?>
+                      <option value="<?php echo $row["id"] ?>" selected><?php echo $row["name"] ?></option>
+                    <?php endif; ?>
+                    <?php if (intval($_GET['Categories']) != $row["id"]): ?>
+                      <option value="<?php echo $row["id"] ?>"><?php echo $row["name"] ?></option>
+                    <?php endif; ?>
                   <?php endforeach; ?>
                 <?php endif; ?>
               </select>
@@ -107,13 +113,17 @@ if (mysqli_num_rows($result) > 0) {
         <div class="mb-3">
           <label for="exampleInputPassword1" class="form-label">Search Product</label>
           <div class="d-flex">
-            <input type="text" placeholder="Search" class="form-control" name="Search" onchange="this.form.submit();">
+            <input type="text" placeholder="Search" class="form-control" name="Search">
             <button type="submit" class="btn btn-primary">Search</button>
           </div>
           <?php if (mysqli_num_rows($products) > 0 ): ?>
                 <div class="list-group">
+             
                   <?php foreach($products as $key=>$row): ?>
-                      <button type="button" id="<?php echo $row["id"] ?>" class="list-group-item list-group-item-action"><?php echo $row["name"] ?></button>
+                  <li class="list-group-item">
+                    <input class="form-check-input me-1" name="Product[]" type="checkbox" value="<?php echo $row["id"] ?>" id="<?php echo $row["id"] ?>">
+                    <label class="form-check-label" for="firstCheckbox"><?php echo $row["name"] ?></label>
+                  </li>
                   <?php endforeach; ?>
                 </div>
               <?php endif; ?>
