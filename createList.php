@@ -40,58 +40,59 @@ if (mysqli_num_rows($result) > 0) {
     $categories = mysqli_query($conn, $sql);
 
     $templateName = $_GET['templateName'];
+    if($templateName !== ''){
+      $sql = "SELECT * FROM list WHERE name = '$templateName' ORDER BY id DESC LIMIT 1";
+      $query_list = mysqli_query($conn, $sql);
+      $list = mysqli_fetch_assoc($query_list);
+      $listIdCon = intval($list["id"]);
 
-    $sql = "SELECT * FROM list WHERE name = '$templateName' ORDER BY id DESC LIMIT 1";
-    $query_list = mysqli_query($conn, $sql);
-    $list = mysqli_fetch_assoc($query_list);
-    $listIdCon = intval($list["id"]);
+      if ($_GET['Categories']) {
+          if ($_GET['Search']) {
 
-    if ($_GET['Categories']) {
-        if ($_GET['Search']) {
+              $categoryID = intval($_GET['Categories']);
+              $searchValue = $_GET['Search'];
+              $formatQuery = '%' . $searchValue . '%';
+              $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
+              $products = mysqli_query($conn, $sql);
+              
+              if (mysqli_num_rows($query_list) <= 0) {
+                  $stmt = $conn->prepare("INSERT INTO list (name,user_id) VALUES (?,?)");
+                  $stmt->bind_param("si", $templateName, $user["id"]);
+                  $stmt->execute();
+              }
 
-            $categoryID = intval($_GET['Categories']);
-            $searchValue = $_GET['Search'];
-            $formatQuery = '%' . $searchValue . '%';
-            $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
-            $products = mysqli_query($conn, $sql);
-            
-            if (mysqli_num_rows($query_list) <= 0) {
-                $stmt = $conn->prepare("INSERT INTO list (name,user_id) VALUES (?,?)");
-                $stmt->bind_param("si", $templateName, $user["id"]);
-                $stmt->execute();
-            }
+          }
+      }
 
-        }
-    }
+      if ($_GET['Product']) {
+          $productsSelected = $_GET['Product'];
 
-    if ($_GET['Product']) {
-        $productsSelected = $_GET['Product'];
+          foreach ($productsSelected as $value) {
+              $convert = intval($value);
 
-        foreach ($productsSelected as $value) {
-            $convert = intval($value);
+              $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
+              $stmt->bind_param("ii", $listIdCon, $convert);
+              $stmt->execute();
+          }
+      }
+    
 
-            $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
-            $stmt->bind_param("ii", $listIdCon, $convert);
-            $stmt->execute();
-        }
-    }
-  
+      if ($_GET['ProductDelete']) {
+        $products = intval($_GET['ProductDelete']);
+        $sql = "DELETE FROM list_product WHERE list_id = ? AND product_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $listIdCon,$products);
+        $stmt->execute();
+      }
+      if ($list) {
 
-    if ($_GET['ProductDelete']) {
-      $products = intval($_GET['ProductDelete']);
-      $sql = "DELETE FROM list_product WHERE list_id = ? AND product_id = ?";
-      $stmt = $conn->prepare($sql);
-      $stmt->bind_param("ii", $listIdCon,$products);
-      $stmt->execute();
-    }
-    if ($list) {
-
-      $sql = "SELECT p.id, p.name FROM product AS p
-      LEFT JOIN list_product AS lp
-      ON p.id = lp.product_id
-      WHERE lp.list_id = $listIdCon";
-        $query_products = mysqli_query($conn, $sql);
-   
+        $sql = "SELECT p.id, p.name FROM product AS p
+        LEFT JOIN list_product AS lp
+        ON p.id = lp.product_id
+        WHERE lp.list_id = $listIdCon";
+          $query_products = mysqli_query($conn, $sql);
+    
+      }
     }
 
     if ($_GET['ListDelete'] !== NULL) {
