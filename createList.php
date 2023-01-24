@@ -54,7 +54,7 @@ if (mysqli_num_rows($result) > 0) {
             $formatQuery = '%' . $searchValue . '%';
             $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
             $products = mysqli_query($conn, $sql);
-
+            
             if (mysqli_num_rows($query_list) <= 0) {
                 $stmt = $conn->prepare("INSERT INTO list (name,user_id) VALUES (?,?)");
                 $stmt->bind_param("si", $templateName, $user["id"]);
@@ -65,9 +65,9 @@ if (mysqli_num_rows($result) > 0) {
     }
 
     if ($_GET['Product']) {
-        $products = $_GET['Product'];
+        $productsSelected = $_GET['Product'];
 
-        foreach ($products as $value) {
+        foreach ($productsSelected as $value) {
             $convert = intval($value);
 
             $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
@@ -93,6 +93,33 @@ if (mysqli_num_rows($result) > 0) {
         $query_products = mysqli_query($conn, $sql);
    
     }
+
+    if ($_GET['ListDelete'] !== NULL) {
+      $sql = "DELETE FROM list WHERE id = ?";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("i", $listIdCon);
+      $stmt->execute();
+      $sql = "DELETE FROM list_product WHERE list_id = ?";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("i", $listIdCon);
+      $stmt->execute();
+      header('Location: index.php');
+      exit;
+    }
+
+    if ($_GET['SaveList'] !== NULL) {
+      header('Location: index.php');
+      exit;
+
+    }
+
+
+
+    
+
+
+
+
 
     if (isset($_POST['signout'])) {
 
@@ -161,8 +188,7 @@ if (mysqli_num_rows($result) > 0) {
             <button type="submit" class="btn btn-primary">Search</button>
           </div>
           <?php if (mysqli_num_rows($products) > 0): ?>
-                <div class="list-group">
-
+                <div class="list-group" style="position: relative; width: 95%;height: 100px; overflow-y: scroll;">
                   <?php foreach ($products as $key => $row): ?>
                   <li class="list-group-item">
                     <input class="form-check-input me-1" name="Product[]" type="checkbox" value="<?php echo $row["id"] ?>" id="<?php echo $row["id"] ?>">
@@ -176,7 +202,7 @@ if (mysqli_num_rows($result) > 0) {
 
         </div>
         <?php if (mysqli_num_rows($query_products) > 0): ?>
-                <div class="list-group">
+                <div class="list-group" >
 
                   <?php foreach ($query_products as $key => $row): ?>
                   <li class="list-group-item d-flex">
@@ -188,6 +214,10 @@ if (mysqli_num_rows($result) > 0) {
                   <?php endforeach;?>
                 </div>
               <?php endif;?>
+              <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary" name="ListDelete" type="submit">Delete</button>
+                <button class="btn btn-primary" name="SaveList" type="submit">Save</button>
+              </div>
       </form>
 
 
