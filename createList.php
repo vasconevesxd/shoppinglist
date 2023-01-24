@@ -30,23 +30,68 @@ $email = $_SESSION['email'];
 
 $sql = "SELECT * FROM user WHERE email='$email'";
 $result = mysqli_query($conn, $sql);
+
 if (mysqli_num_rows($result) > 0) {
     // Output data of each row
-    $row = mysqli_fetch_assoc($result);
-    $name = $row["name"];
+    $user = mysqli_fetch_assoc($result);
+    $name = $user["name"];
 
     $sql = "SELECT * FROM category";
     $categories = mysqli_query($conn, $sql);
 
-    if($_GET['Categories']){
-      if($_GET['Search']){     
-        $templateName = $_GET['templateName'];
-        $categoryID = intval($_GET['Categories']);
-        $searchValue= $_GET['Search'];
-        $formatQuery = '%'.$searchValue.'%';
-        $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
-        $products = mysqli_query($conn, $sql);
-      }
+    $templateName = $_GET['templateName'];
+
+    $sql = "SELECT * FROM list WHERE name = '$templateName' ORDER BY id DESC LIMIT 1";
+    $query_list = mysqli_query($conn, $sql);
+    $list = mysqli_fetch_assoc($query_list);
+    $listIdCon = intval($list["id"]);
+
+    if ($_GET['Categories']) {
+        if ($_GET['Search']) {
+
+            $categoryID = intval($_GET['Categories']);
+            $searchValue = $_GET['Search'];
+            $formatQuery = '%' . $searchValue . '%';
+            $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
+            $products = mysqli_query($conn, $sql);
+
+            if (mysqli_num_rows($query_list) <= 0) {
+                $stmt = $conn->prepare("INSERT INTO list (name,user_id) VALUES (?,?)");
+                $stmt->bind_param("si", $templateName, $user["id"]);
+                $stmt->execute();
+            }
+
+        }
+    }
+
+    if ($_GET['Product']) {
+        $products = $_GET['Product'];
+
+        foreach ($products as $value) {
+            $convert = intval($value);
+
+            $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
+            $stmt->bind_param("ii", $listIdCon, $convert);
+            $stmt->execute();
+        }
+    }
+  
+
+    if ($_GET['ProductDelete']) {
+      $products = intval($_GET['ProductDelete']);
+      $sql = "DELETE FROM list_product WHERE list_id = ? AND product_id = ?";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("ii", $listIdCon,$products);
+      $stmt->execute();
+    }
+    if ($list) {
+
+      $sql = "SELECT p.id, p.name FROM product AS p
+      LEFT JOIN list_product AS lp
+      ON p.id = lp.product_id
+      WHERE lp.list_id = $listIdCon";
+        $query_products = mysqli_query($conn, $sql);
+   
     }
 
     if (isset($_POST['signout'])) {
@@ -59,7 +104,6 @@ if (mysqli_num_rows($result) > 0) {
 
 }
 
-var_dump($_GET['Product']);
 ?>
 
 
@@ -90,7 +134,7 @@ var_dump($_GET['Product']);
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Create a Lists</h1>
       </div>
-      <form onchange="this.form.submit();">
+      <form action="createList.php" method="get">
         <div class="mb-3">
           <label for="exampleInputEmail1" class="form-label">Template Name</label>
           <input type="text" value="<?php echo $templateName; ?>" name="templateName" class="form-control">
@@ -98,16 +142,16 @@ var_dump($_GET['Product']);
         <div class="mb-3">
           <label class="form-label">Categories</label>
               <select class="form-select" name="Categories" aria-label="Default select example">
-                <?php if (mysqli_num_rows($categories) > 0 ): ?>
-                  <?php foreach($categories as $key=>$row): ?>
+                <?php if (mysqli_num_rows($categories) > 0): ?>
+                  <?php foreach ($categories as $key => $row): ?>
                     <?php if (intval($_GET['Categories']) == $row["id"]): ?>
                       <option value="<?php echo $row["id"] ?>" selected><?php echo $row["name"] ?></option>
-                    <?php endif; ?>
+                    <?php endif;?>
                     <?php if (intval($_GET['Categories']) != $row["id"]): ?>
                       <option value="<?php echo $row["id"] ?>"><?php echo $row["name"] ?></option>
-                    <?php endif; ?>
-                  <?php endforeach; ?>
-                <?php endif; ?>
+                    <?php endif;?>
+                  <?php endforeach;?>
+                <?php endif;?>
               </select>
         </div>
         <div class="mb-3">
@@ -116,19 +160,36 @@ var_dump($_GET['Product']);
             <input type="text" placeholder="Search" class="form-control" name="Search">
             <button type="submit" class="btn btn-primary">Search</button>
           </div>
-          <?php if (mysqli_num_rows($products) > 0 ): ?>
+          <?php if (mysqli_num_rows($products) > 0): ?>
                 <div class="list-group">
-             
-                  <?php foreach($products as $key=>$row): ?>
+
+                  <?php foreach ($products as $key => $row): ?>
                   <li class="list-group-item">
                     <input class="form-check-input me-1" name="Product[]" type="checkbox" value="<?php echo $row["id"] ?>" id="<?php echo $row["id"] ?>">
                     <label class="form-check-label" for="firstCheckbox"><?php echo $row["name"] ?></label>
                   </li>
-                  <?php endforeach; ?>
+                  <?php endforeach;?>
                 </div>
-              <?php endif; ?>
+              <?php endif;?>
+
+
+
         </div>
+        <?php if (mysqli_num_rows($query_products) > 0): ?>
+                <div class="list-group">
+
+                  <?php foreach ($query_products as $key => $row): ?>
+                  <li class="list-group-item d-flex">
+                    <label class="form-check-label" for="firstCheckbox"><?php echo $row["name"] ?></label>
+                    <span style="margin: 0 0 0 auto;">
+                      <button class="btn btn-danger" name="ProductDelete" type="submit" value="<?php echo $row["id"] ?>" id="<?php echo $row["id"] ?>">Delete</button>
+                    </span>
+                  </li>
+                  <?php endforeach;?>
+                </div>
+              <?php endif;?>
       </form>
+
 
     </main>
   </div>
