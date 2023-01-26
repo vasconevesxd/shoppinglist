@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 
 
@@ -89,8 +90,8 @@ if (isset($_POST['submit'])) {
                 <?php } ?>
               </div>
               <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/3176/3176195.png"
-                  class="img-fluid" alt="Sample image">
+                <img src="https://img.freepik.com/vetores-gratis/calculo-de-despesas-planejamento-de-lista-de-desejos-lista-de-compras-resumo-de-compras-cesta-de-supermercado-na-internet-elemento-de-design-criativo-da-lista-de-desejos-do-comprador_335657-3556.jpg?w=740&t=st=1674593591~exp=1674594191~hmac=c6003e756d62f5049b98e5c77e991ba2856163ce5663de4ff1b4dc0a029388a8"
+                  class="img-fluid" alt="Fonte: img.freepik.com" width=70% height=70%>
               </div>
             </div>
           </div>
