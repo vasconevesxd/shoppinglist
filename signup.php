@@ -60,8 +60,8 @@
 
               </div>
               <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/3176/3176195.png"
-                  class="img-fluid" alt="Sample image">
+              <img src="https://img.freepik.com/vetores-gratis/calculo-de-despesas-planejamento-de-lista-de-desejos-lista-de-compras-resumo-de-compras-cesta-de-supermercado-na-internet-elemento-de-design-criativo-da-lista-de-desejos-do-comprador_335657-3556.jpg?w=740&t=st=1674593591~exp=1674594191~hmac=c6003e756d62f5049b98e5c77e991ba2856163ce5663de4ff1b4dc0a029388a8"
+                  class="img-fluid" alt="Fonte: img.freepik.com" width=70% height=70%>
               </div>
             </div>
           </div>
