@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping List</title>
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 
 </head>
@@ -137,16 +138,15 @@ if (mysqli_num_rows($result) > 0) {
 
 
 
-
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#">Shopping List</a>
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="index.php">Shopping List</a>
   <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="navbar-nav" style="flex-direction:unset">
     <div class="nav-item text-nowrap">
-      <span class="nav-link px-3" href="#"><?php echo $name; ?></span>
+      <span class="nav-link px-3" href="#">Hello, <?php echo $name; ?></span>
     </div>
     <div class="nav-item text-nowrap">
       <form method="post">
@@ -161,11 +161,11 @@ if (mysqli_num_rows($result) > 0) {
 
     <main class="col-md-12 ms-sm-auto col-lg-12 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Create a Lists</h1>
+        <h1 class="h2">Create a List</h1>
       </div>
       <form action="createList.php" method="get">
         <div class="mb-3">
-          <label for="exampleInputEmail1" class="form-label">Template Name</label>
+          <label for="exampleInputEmail1" class="form-label">List Name</label>
           <input type="text" value="<?php echo $templateName; ?>" name="templateName" class="form-control">
         </div>
         <div class="mb-3">
