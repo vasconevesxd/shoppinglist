@@ -158,10 +158,10 @@
       <tbody>
         <?php if (mysqli_num_rows($products) > 0 ): ?>
           <?php foreach($products as $product_row): ?>
-            <tr>
+            <tr id="list-<?php echo $product_row["id"] ?>">
               <td><?php echo $product_row["name"] ?></td>
               <td><?php echo $product_row["category_name"] ?></td>
-              <td><button id="strike-button" class="btn btn-secondary">Acquired</button></td>
+              <td><button onclick="checkProduct(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary">Acquired</button></td>
             </tr>
             
           <?php endforeach; ?>
@@ -202,9 +202,18 @@
 </script>
 
 <script>
-  document.querySelector('#strike-button').addEventListener('click', function(event) {
+function checkProduct(e){
+  let idButton = e.id;
+  let indexString = idButton.lastIndexOf('-');
+  let index =  idButton.substring(indexString + 1);
+  let element = document.querySelector(`#list-${index} td:first-child`);
+  element.classList.toggle('striked-through');
+}
+
+
+ /* document.querySelector('#strike-button').addEventListener('click', function(event) {
     event.target.closest('tr').querySelector('td:first-child').classList.toggle('striked-through');
-  });
+  });*/
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>

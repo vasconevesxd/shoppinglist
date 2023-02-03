@@ -56,7 +56,12 @@ if (mysqli_num_rows($result) > 0) {
               $formatQuery = '%' . $searchValue . '%';
               $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
               $products = mysqli_query($conn, $sql);
+              $productCount = -1;
+              if(mysqli_num_rows($products)){
+                $productCount = 1;
+              }
               
+
               if (mysqli_num_rows($query_list) <= 0) {
                   $stmt = $conn->prepare("INSERT INTO list (name,user_id) VALUES (?,?)");
                   $stmt->bind_param("si", $templateName, $user["id"]);
@@ -66,16 +71,32 @@ if (mysqli_num_rows($result) > 0) {
           }
       }
 
-      if ($_GET['Product']) {
-          $productsSelected = $_GET['Product'];
+      if($_GET['AddList'] === "") {
+        if ($_GET['Product']) {
+            $productsSelected = $_GET['Product'];
 
-          foreach ($productsSelected as $value) {
-              $convert = intval($value);
+            foreach ($productsSelected as $value) {
+                $convert = intval($value);
 
-              $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
-              $stmt->bind_param("ii", $listIdCon, $convert);
-              $stmt->execute();
-          }
+                $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
+                $stmt->bind_param("ii", $listIdCon, $convert);
+                $stmt->execute();
+            }
+            if ($list) {
+
+              $sql = "SELECT p.id, p.name FROM product AS p
+              LEFT JOIN list_product AS lp
+              ON p.id = lp.product_id
+              WHERE lp.list_id = $listIdCon";
+                $query_products = mysqli_query($conn, $sql);
+
+                $queryproductCount = -1;
+                if(mysqli_num_rows($query_products)){
+                  $queryproductCount = 1;
+                }
+          
+            }
+        }
       }
     
 
@@ -93,6 +114,10 @@ if (mysqli_num_rows($result) > 0) {
         ON p.id = lp.product_id
         WHERE lp.list_id = $listIdCon";
           $query_products = mysqli_query($conn, $sql);
+          $queryproductCount = -1;
+          if(mysqli_num_rows($query_products)){
+            $queryproductCount = 1;
+          }
     
       }
     }
@@ -188,9 +213,10 @@ if (mysqli_num_rows($result) > 0) {
           <div class="d-flex">
             <input type="text" placeholder="Search" class="form-control" name="Search">
             <button type="submit" class="btn btn-primary">Search</button>
+            <button class="btn btn-secondary" name="AddList" type="submit">Add</button>
           </div>
-          <?php if (mysqli_num_rows($products) > 0): ?>
-                <div class="list-group" style="position: relative; width: 95%;height: 100px; overflow-y: scroll;">
+          <?php if ($productCount > 0): ?>
+                <div class="list-group" style="position: relative; width: 95%;height: 300px; overflow-y: scroll;">
                   <?php foreach ($products as $key => $row): ?>
                   <li class="list-group-item">
                     <input class="form-check-input me-1" name="Product[]" type="checkbox" value="<?php echo $row["id"] ?>" id="<?php echo $row["id"] ?>">
@@ -198,12 +224,12 @@ if (mysqli_num_rows($result) > 0) {
                   </li>
                   <?php endforeach;?>
                 </div>
-              <?php endif;?>
+            <?php endif;?>
 
 
 
         </div>
-        <?php if (mysqli_num_rows($query_products) > 0): ?>
+        <?php if ($queryproductCount > 0): ?>
                 <div class="list-group" >
 
                   <?php foreach ($query_products as $key => $row): ?>

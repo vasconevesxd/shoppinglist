@@ -38,7 +38,7 @@ if (mysqli_num_rows($result) > 0) {
   $row = mysqli_fetch_assoc($result);
   $name = $row["name"];
 
-  $sql = "SELECT list.name, list.image FROM list LEFT JOIN user ON list.user_id = user.id  WHERE user.email = '$email'";
+  $sql = "SELECT list.id,list.name, list.image FROM list LEFT JOIN user ON list.user_id = user.id  WHERE user.email = '$email'";
   $list = mysqli_query($conn, $sql);
 
   if (isset($_POST['signout'])) {
