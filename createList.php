@@ -46,6 +46,7 @@ if (mysqli_num_rows($result) > 0) {
       $list = mysqli_fetch_assoc($query_list);
       $listIdCon = intval($list["id"]);
 
+
       if ($_GET['Categories']) {
           if ($_GET['Search']) {
 
@@ -183,7 +184,7 @@ if (mysqli_num_rows($result) > 0) {
               </select>
         </div>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Search Product</label>
+          <label class="form-label">Search Product</label>
           <div class="d-flex">
             <input type="text" placeholder="Search" class="form-control" name="Search">
             <button type="submit" class="btn btn-primary">Search</button>
