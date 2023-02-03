@@ -87,35 +87,35 @@ if (mysqli_num_rows($result) > 0) {
 
 
 <div class="container mt-1">
-    <div class="row d-flex justify-content-between mb-3">
-        <div class="row mb-4">
-            <div class="card me-4" style="width: 240px;">
-                <div class="card-body d-flex align-items-center">
-                    <a href="./createList.php">
-                       <img src="./img/plus.png" alt="Click to create a list" style="width:180px; height:180px;">
-                    </a>
-                </div>
-            </div>
-  
-            <div class="card-body d-flex align-items-center mt-3">
-                <?php if (mysqli_num_rows($list) > 0 ): ?>
-                    <?php foreach($list as $row): ?>
-                    <a href="<?php echo $url ?>/list.php" class="text-decoration-none" style="color:black">
-                        <div class="card me-4" style="width: 240px;">
-                            <img class="card-img-top" src="<?php echo $row["image"] ?>" alt="Card image cap" style="width:200px; height:200px;">
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo $row["name"] ?></h5>
-                            </div>
-                        </div>
-                    </a>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-
+  <div class="row d-flex justify-content-between mb-3">
+    <div class="row mb-4 d-flex flex-wrap">
+      <div class="col-md-3">
+        <div class="card me-4" style="width: 240px;">
+          <div class="card-body d-flex align-items-center">
+            <a href="./createList.php">
+              <img src="./img/plus.png" alt="Click to create a list" style="width:180px; height:180px;">
+            </a>
+          </div>
         </div>
-
+      </div>
+      <?php if (mysqli_num_rows($list) > 0 ): ?>
+        <?php foreach($list as $row): ?>
+          <div class="col-md-3">
+            <a href="<?php echo $url ?>/list.php?id=<?php echo $row['id'] ?>" class="text-decoration-none" style="color:black">
+              <div class="card me-4" style="width: 240px;">
+                <img class="card-body d-flex align-items-center text-center" src="<?php echo $row["image"] ?>" alt="Card image cap" style="width:220px; height:220px;">
+                <div class="card-body text-center">
+                  <h5 class="card-title"><?php echo $row["name"] ?></h5>
+                </div>
+              </div>
+            </a>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
+  </div>
 </div>
+
 
 
 

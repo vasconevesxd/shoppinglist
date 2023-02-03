@@ -13,118 +13,110 @@
 
 <?php
 
-session_start();
+  session_start();
 
-// Check if the user is logged in
+  // Check if the user is logged in
 
-if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
-    header('Location: signin.php');
-    exit;
-}
-$current_url = 'http://' . $_SERVER['HTTP_HOST'];
-$parsed_url = parse_url($current_url . $_SERVER['REQUEST_URI']);
-$current_dir = dirname($parsed_url['path']);
-$url = $current_url . $current_dir;
-$conn = include "connectBD.php";
+  if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
+      header('Location: signin.php');
+      exit;
+  }
+  $current_url = 'http://' . $_SERVER['HTTP_HOST'];
+  $parsed_url = parse_url($current_url . $_SERVER['REQUEST_URI']);
+  $current_dir = dirname($parsed_url['path']);
+  $url = $current_url . $current_dir;
+  $conn = include "connectBD.php";
 
-$email = $_SESSION['email'];
+  $email = $_SESSION['email'];
 
-$sql = "SELECT * FROM user WHERE email='$email'";
-$result = mysqli_query($conn, $sql);
+  $sql = "SELECT * FROM user WHERE email='$email'";
+  $result = mysqli_query($conn, $sql);
 
-if (mysqli_num_rows($result) > 0) {
-    // Output data of each row
-    $user = mysqli_fetch_assoc($result);
-    $name = $user["name"];
+  if (mysqli_num_rows($result) > 0) {
+      // Output data of each row
+      $user = mysqli_fetch_assoc($result);
+      $name = $user["name"];
 
-    $sql = "SELECT * FROM category";
-    $categories = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM category";
+      $categories = mysqli_query($conn, $sql);
 
-    $templateName = $_GET['templateName'];
-    if($templateName !== ''){
-      $sql = "SELECT * FROM list WHERE name = '$templateName' ORDER BY id DESC LIMIT 1";
-      $query_list = mysqli_query($conn, $sql);
-      $list = mysqli_fetch_assoc($query_list);
-      $listIdCon = intval($list["id"]);
+      $templateName = $_GET['templateName'];
+      if($templateName !== ''){
+        $sql = "SELECT * FROM list WHERE name = '$templateName' ORDER BY id DESC LIMIT 1";
+        $query_list = mysqli_query($conn, $sql);
+        $list = mysqli_fetch_assoc($query_list);
+        $listIdCon = intval($list["id"]);
 
-      if ($_GET['Categories']) {
-          if ($_GET['Search']) {
+        if ($_GET['Categories']) {
+            if ($_GET['Search']) {
+                $categoryID = intval($_GET['Categories']);
+                $searchValue = $_GET['Search'];
+                $formatQuery = '%' . $searchValue . '%';
+                $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
+                $products = mysqli_query($conn, $sql);
+                
+                if (mysqli_num_rows($query_list) <= 0) {
+                    $stmt = $conn->prepare("INSERT INTO list (name,user_id) VALUES (?,?)");
+                    $stmt->bind_param("si", $templateName, $user["id"]);
+                    $stmt->execute();
+                }
+            }
+        }
 
-              $categoryID = intval($_GET['Categories']);
-              $searchValue = $_GET['Search'];
-              $formatQuery = '%' . $searchValue . '%';
-              $sql = "SELECT * FROM product WHERE category_id = $categoryID AND name LIKE '$formatQuery'";
-              $products = mysqli_query($conn, $sql);
-              
-              if (mysqli_num_rows($query_list) <= 0) {
-                  $stmt = $conn->prepare("INSERT INTO list (name,user_id) VALUES (?,?)");
-                  $stmt->bind_param("si", $templateName, $user["id"]);
-                  $stmt->execute();
-              }
+        if ($_GET['Product']) {
+            $productsSelected = $_GET['Product'];
 
-          }
+            foreach ($productsSelected as $value) {
+                $convert = intval($value);
+                $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
+                $stmt->bind_param("ii", $listIdCon, $convert);
+                $stmt->execute();
+            }
+        }
+      
+        if ($_GET['ProductDelete']) {
+          $products = intval($_GET['ProductDelete']);
+          $sql = "DELETE FROM list_product WHERE list_id = ? AND product_id = ?";
+          $stmt = $conn->prepare($sql);
+          $stmt->bind_param("ii", $listIdCon,$products);
+          $stmt->execute();
+        }
+        if ($list) {
+          $sql = "SELECT p.id, p.name FROM product AS p
+          LEFT JOIN list_product AS lp
+          ON p.id = lp.product_id
+          WHERE lp.list_id = $listIdCon";
+            $query_products = mysqli_query($conn, $sql);
+        }
       }
 
-      if ($_GET['Product']) {
-          $productsSelected = $_GET['Product'];
-
-          foreach ($productsSelected as $value) {
-              $convert = intval($value);
-
-              $stmt = $conn->prepare("INSERT INTO list_product (list_id,product_id) VALUES (?,?)");
-              $stmt->bind_param("ii", $listIdCon, $convert);
-              $stmt->execute();
-          }
-      }
-    
-
-      if ($_GET['ProductDelete']) {
-        $products = intval($_GET['ProductDelete']);
-        $sql = "DELETE FROM list_product WHERE list_id = ? AND product_id = ?";
+      if ($_GET['ListDelete'] !== NULL) {
+        $sql = "DELETE FROM list WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ii", $listIdCon,$products);
+        $stmt->bind_param("i", $listIdCon);
         $stmt->execute();
-      }
-      if ($list) {
-
-        $sql = "SELECT p.id, p.name FROM product AS p
-        LEFT JOIN list_product AS lp
-        ON p.id = lp.product_id
-        WHERE lp.list_id = $listIdCon";
-          $query_products = mysqli_query($conn, $sql);
-    
-      }
-    }
-
-    if ($_GET['ListDelete'] !== NULL) {
-      $sql = "DELETE FROM list WHERE id = ?";
-      $stmt = $conn->prepare($sql);
-      $stmt->bind_param("i", $listIdCon);
-      $stmt->execute();
-      $sql = "DELETE FROM list_product WHERE list_id = ?";
-      $stmt = $conn->prepare($sql);
-      $stmt->bind_param("i", $listIdCon);
-      $stmt->execute();
-      header('Location: index.php');
-      exit;
-    }
-
-    if ($_GET['SaveList'] !== NULL) {
-      header('Location: index.php');
-      exit;
-
-    }
-
-
-    if (isset($_POST['signout'])) {
-
-        session_destroy();
-
-        header('Location: ' . $url . '/signin.php');
+        $sql = "DELETE FROM list_product WHERE list_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $listIdCon);
+        $stmt->execute();
+        header('Location: index.php');
         exit;
-    }
+      }
 
-}
+      if ($_GET['SaveList'] !== NULL) {
+        header('Location: index.php');
+        exit;
+
+      }
+
+      if (isset($_POST['signout'])) {
+
+          session_destroy();
+
+          header('Location: ' . $url . '/signin.php');
+          exit;
+      }
+  }
 
 ?>
 
