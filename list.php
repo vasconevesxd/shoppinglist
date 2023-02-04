@@ -184,9 +184,21 @@
 </div>
 
 <script>
-    function DeleteConfirm() {
-      confirm("Are you sure to delete this record ?");
-     }
+  function DeleteConfirm() {
+    confirm("Are you sure to delete this record ?");
+  }
+
+  function About() {
+    confirm("Desenvolvimento de Aplicações Web (DAW) - ISTEC Lisboa\nJaneiro 2023\n\nTrabalho realizado por Daniel Oliveira & Vasco Neves");
+  }
+
+  function checkProduct(e){
+    let idButton = e.id;
+    let indexString = idButton.lastIndexOf('-');
+    let index =  idButton.substring(indexString + 1);
+    let element = document.querySelector(`#list-${index} td:first-child`);
+    element.classList.toggle('text-strike');
+  }
  </script>
 
 <script>
@@ -201,20 +213,13 @@
   });
 </script>
 
-<script>
-function checkProduct(e){
-  let idButton = e.id;
-  let indexString = idButton.lastIndexOf('-');
-  let index =  idButton.substring(indexString + 1);
-  let element = document.querySelector(`#list-${index} td:first-child`);
-  element.classList.toggle('striked-through');
-}
 
-
- /* document.querySelector('#strike-button').addEventListener('click', function(event) {
-    event.target.closest('tr').querySelector('td:first-child').classList.toggle('striked-through');
-  });*/
-</script>
+<footer class="bg-dark py-4 d-flex justify-content-between">
+  <p class="text-center text-white">Copyright &copy; 2023 | All rights reserved</p>
+  <button class="btn btn-secondary d-flex align-items-center">
+  <span class="mr-2" onclick="About()">About </span><i class="fa fa-info-circle mr-2"></i> 
+  </button>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">

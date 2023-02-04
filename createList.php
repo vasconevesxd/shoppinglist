@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <title>Shopping List</title>
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
@@ -16,7 +17,6 @@
 session_start();
 
 // Check if the user is logged in
-
 if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
     header('Location: signin.php');
     exit;
@@ -46,7 +46,6 @@ if (mysqli_num_rows($result) > 0) {
       $query_list = mysqli_query($conn, $sql);
       $list = mysqli_fetch_assoc($query_list);
       $listIdCon = intval($list["id"]);
-
 
       if ($_GET['Categories']) {
           if ($_GET['Search']) {
@@ -98,8 +97,7 @@ if (mysqli_num_rows($result) > 0) {
             }
         }
       }
-    
-
+   
       if ($_GET['ProductDelete']) {
         $products = intval($_GET['ProductDelete']);
         $sql = "DELETE FROM list_product WHERE list_id = ? AND product_id = ?";
@@ -141,14 +139,6 @@ if (mysqli_num_rows($result) > 0) {
 
     }
 
-
-
-    
-
-
-
-
-
     if (isset($_POST['signout'])) {
 
         session_destroy();
@@ -158,9 +148,7 @@ if (mysqli_num_rows($result) > 0) {
     }
 
 }
-
 ?>
-
 
 
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
@@ -213,7 +201,7 @@ if (mysqli_num_rows($result) > 0) {
           <div class="d-flex">
             <input type="text" placeholder="Search" class="form-control" name="Search">
             <button type="submit" class="btn btn-primary">Search</button>
-            <button class="btn btn-secondary" name="AddList" type="submit">Add</button>
+            <button class="btn btn-success" name="AddList" type="submit">Add</button>
           </div>
           <?php if ($productCount > 0): ?>
                 <div class="list-group" style="position: relative; width: 95%;height: 300px; overflow-y: scroll;">
@@ -236,15 +224,15 @@ if (mysqli_num_rows($result) > 0) {
                   <li class="list-group-item d-flex">
                     <label class="form-check-label" for="firstCheckbox"><?php echo $row["name"] ?></label>
                     <span style="margin: 0 0 0 auto;">
-                      <button class="btn btn-danger" name="ProductDelete" type="submit" value="<?php echo $row["id"] ?>" id="<?php echo $row["id"] ?>">Delete</button>
+                      <button class="btn btn-danger" name="ProductDelete" type="submit" value="<?php echo $row["id"] ?>" id="<?php echo $row["id"] ?>">Remove</button>
                     </span>
                   </li>
                   <?php endforeach;?>
                 </div>
               <?php endif;?>
               <div class="d-flex justify-content-between mt-4">
-                <button class="btn btn-secondary" name="ListDelete" type="submit">Delete</button>
-                <button class="btn btn-primary" name="SaveList" type="submit">Save</button>
+                <button class="btn btn-danger" name="ListDelete" type="submit">Clear List</button>
+                <button class="btn btn-success" name="SaveList" type="submit">Save</button>
               </div>
       </form>
 
@@ -252,6 +240,20 @@ if (mysqli_num_rows($result) > 0) {
     </main>
   </div>
 </div>
+
+<script>
+  function About() {
+    confirm("Desenvolvimento de Aplicações Web (DAW) - ISTEC Lisboa\nJaneiro 2023\n\nTrabalho realizado por Daniel Oliveira & Vasco Neves");
+  }
+</script>
+
+<footer class="bg-dark py-4 d-flex justify-content-between">
+  <p class="text-center text-white">Copyright &copy; 2023 | All rights reserved</p>
+  <button class="btn btn-secondary d-flex align-items-center">
+  <span class="mr-2" onclick="About()">About </span><i class="fa fa-info-circle mr-2"></i> 
+  </button>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
 </body>

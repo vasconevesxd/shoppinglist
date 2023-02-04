@@ -1,15 +1,25 @@
 .product {
     list-style: none;
   }
-  
-  .struck-out {
+
+.striked-throug__h {
     text-decoration: line-through;
+    font-weight: bold;
+}
+
+.text-strike {
+  text-decoration-line: line-through;
+  text-decoration-color: rgb(251, 0, 0);
+  text-decoration-thickness: 4px;
+}
+
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
   }
 
-  .striked-through {
-    text-decoration: line-through;
-  }
-  
-  .strike-button {
-    text-decoration: line-through;
-  }  
