@@ -36,7 +36,12 @@
     $list_name = $row['name'];
   }
 
-  $sql = "SELECT product.*, category.name as category_name FROM product
+
+  $teste = $_GET['productid'];
+var_dump($_GET['productid']);
+ 
+
+  $sql = "SELECT list_product.list_id as list_id ,product.*, category.name as category_name FROM product
       JOIN list_product ON list_product.product_id = product.id
       JOIN category ON product.category_id = category.id
       WHERE list_product.list_id = $list_id";
@@ -107,27 +112,23 @@
         $list_id = $_GET['id'];
         $product_id = $_POST['product_id'];
         $state = $_POST['state'];
-        $sql = "UPDATE list_product SET state = $state WHERE list_id = $list_id AND product_id = $product_id";
+        $new_state = $state == 0 ? 1 : 0;
+        if ($new_state == 1) {
+          $product_row['state'] = 1;
+        } else {
+          $product_row['state'] = 0;
+        }
+        $sql = "UPDATE list_product SET state = $new_state WHERE list_id = $list_id AND product_id = $product_id";
         if (!mysqli_query($conn, $sql)) {
           echo "Erro ao atualizar o estado do produto: " . mysqli_error($conn);
-        } else {
-          header("Location: index.php");
-          exit;
         }
-      }
-       
-      if ($_GET['SaveList'] !== NULL) {
-        header('Location: index.php');
-        exit;
-
-      }
-
+      } 
+      
       if (isset($_POST['signout'])) {
           session_destroy();
           header('Location: ' . $url . '/signin.php');
           exit;
       }
-
   }
 
 ?>
@@ -160,6 +161,8 @@
         <button type="button" class="btn btn-danger btn-close" aria-label="Close" onClick="location.href='index.php'"></button>
       </div>
 
+      <form method="get" action="list.php" >
+        
       <table class="table table-striped">
         <thead>
           <tr>
@@ -171,15 +174,12 @@
         <tbody>
           <?php if (mysqli_num_rows($products) > 0 ): ?>
             <?php foreach($products as $product_row): ?>
-              <tr id="list-<?php echo $product_row["id"] ?>" class="<?php echo $product_row['state'] == 1 ? 'text-strike' : '' ?>">
+              <tr id="list-<?php echo $product_row["id"] ?>">
                 <td><?php echo $product_row["name"] ?></td>
                 <td><?php echo $product_row["category_name"] ?></td>
                 <td>
-                  <form method="post">
-                    <input type="hidden" name="product_id" value="<?php echo $product_row['id'] ?>">
-                    <input type="hidden" name="state" value="<?php echo $product_row['state'] == 0 ? 1 : 0 ?>">
-                    <button type="submit" name="update_state" class="btn btn-secondary">Acquired</button>
-                  </form>
+                <td>
+                  <button name="productid" value="<?php echo 'list'.'-' . $product_row["list_id"] . '-' . 'product' . '-' . $product_row["id"] . '-' ?>" type="submit" onclick="checkProduct(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary">Acquired</button></td>
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -187,37 +187,27 @@
         </tbody>
       </table>
 
-
     <div class="d-flex justify-content-between mt-4">
-      <form method="post" >
         <input type="hidden" name="list_id" value="<?php echo $list_id ?>">
         <input class="btn btn-danger" onclick="DeleteConfirm()" type="submit" name="delete_list" value="Delete List">
-      </form>
       <button type="button" class="btn btn-primary" id="shareBtn">
         <i class="fas fa-share-alt"></i> Share
       </button>
     </div>
 
+    </form>
   </main>
   </div>
 </div>
 
 <script>
-  function DeleteConfirm() {
-    confirm("Are you sure to delete this record ?");
-  }
-
-  function About() {
-    confirm("Desenvolvimento de Aplicações Web (DAW) - ISTEC Lisboa\nJaneiro 2023\n\nTrabalho realizado por Daniel Oliveira & Vasco Neves");
-  }
-
- // function checkProduct(e){
- //   let idButton = e.id;
- //   let indexString = idButton.lastIndexOf('-');
- //   let index =  idButton.substring(indexString + 1);
- //   let element = document.querySelector(`#list-${index} td:first-child`);
- //   element.classList.toggle('text-strike');
- // }
+ function checkProduct(e){
+   let idButton = e.id;
+   let indexString = idButton.lastIndexOf('-');
+   let index =  idButton.substring(indexString + 1);
+   let element = document.querySelector(`#list-${index} td:first-child`);
+   element.classList.toggle('text-strike');
+ }
 </script>
 
 <script>
