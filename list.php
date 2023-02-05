@@ -52,7 +52,7 @@
     }
   }
 
-  $sql = "SELECT list_product.list_id as list_id ,product.*, category.name as category_name FROM product
+  $sql = "SELECT list_product.list_id as list_id,  list_product.state  as list_state ,product.*, category.name as category_name FROM product
       JOIN list_product ON list_product.product_id = product.id
       JOIN category ON product.category_id = category.id
       WHERE list_product.list_id = $list_id";
@@ -189,8 +189,10 @@
                 <td><?php echo $product_row["name"] ?></td>
                 <td><?php echo $product_row["category_name"] ?></td>
                 <td>
+                  <button name="productid" value="<?php echo 'list'.'-' . $product_row["list_id"] . '-' . 'product' . '-' . $product_row["id"] . '-' . 'state' . '-'.  $product_row["list_state"] ?>" type="submit" onclick="checkProduct(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary">Acquired</button>
+                </td>
                 <td>
-                  <button name="productid" value="<?php echo 'list'.'-' . $product_row["list_id"] . '-' . 'product' . '-' . $product_row["id"] . '-' ?>" type="submit" onclick="checkProduct(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary">Acquired</button></td>
+                  <button name="refresh" value="<?php echo 'list'.'-' . $product_row["list_id"] . '-' . 'product' . '-' . $product_row["id"] . '-' . 'state' . '-'.  $product_row["list_state"] ?>" type="button" onclick="getData(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary">Refresh</button>
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -212,6 +214,18 @@
 </div>
 
 <script>
+function getData(e){
+  let value = e.value;
+   var n = value.lastIndexOf('-');
+   var result = value.substring(n + 1);
+   let idButton = e.id;
+   let indexString = idButton.lastIndexOf('-');
+   let index =  idButton.substring(indexString + 1);
+   if(parseInt(result)){
+    let element = document.querySelector(`#list-${index} td:first-child`);
+    element.classList.toggle('text-strike');
+  }
+}
  function checkProduct(e){
    let idButton = e.id;
    let indexString = idButton.lastIndexOf('-');
