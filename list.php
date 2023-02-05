@@ -37,9 +37,20 @@
   }
 
 
-  $teste = $_GET['productid'];
-var_dump($_GET['productid']);
- 
+  $values = $_GET['productid'];
+
+  if($values !== ''){
+
+    if (preg_match('/list-(.*?)-product/', $values , $match) == 1) {
+        $list_id = $match[1];
+    }
+      
+      
+
+    if (preg_match('/product-(.*?)-/', $values , $match) == 1) {
+        $product_id = $match[1];
+    }
+  }
 
   $sql = "SELECT list_product.list_id as list_id ,product.*, category.name as category_name FROM product
       JOIN list_product ON list_product.product_id = product.id

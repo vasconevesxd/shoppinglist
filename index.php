@@ -24,9 +24,8 @@ if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
   exit;
 }
 $current_url = 'http://'.$_SERVER['HTTP_HOST'];
-$parsed_url = parse_url($current_url.$_SERVER['REQUEST_URI']);
-$current_dir = dirname($parsed_url['path']);
-$url = $current_url . $current_dir;
+
+$url = $current_url.$_SERVER['REQUEST_URI'];
 $conn = include("connectBD.php"); 
 
 $email = $_SESSION['email'];
@@ -57,10 +56,10 @@ if (mysqli_num_rows($result) > 0) {
 
 
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="index.php">Shopping List</a>
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="/shoppinglist">Shopping List</a>
   <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
-    <a href=index.php> </a>
+
   </button>
 
   <div class="navbar-nav" style="flex-direction:unset">
@@ -102,7 +101,7 @@ if (mysqli_num_rows($result) > 0) {
       <?php if (mysqli_num_rows($list) > 0 ): ?>
         <?php foreach($list as $row): ?>
           <div class="col-md-3">
-            <a href="<?php echo $url ?>/list.php?id=<?php echo $row['id'] ?>" class="text-decoration-none" style="color:black">
+            <a href="<?php echo $url?>list.php?id=<?php echo $row['id'] ?>" class="text-decoration-none" style="color:black">
               <div class="card me-4" style="width: 240px;">
                 <img class="card-body d-flex align-items-center text-center" src="<?php echo $row["image"] ?>" alt="Card image cap" style="width:220px; height:220px;">
                 <div class="card-body text-center">
