@@ -24,50 +24,50 @@
 
   // Verifica se a conexão foi bem-sucedida
   if (!$conn) {
-  die("Falha na conexão: " . mysqli_connect_error());
+    die("Falha na conexão: " . mysqli_connect_error());
   }
 
-  $list_id = $_GET['id'];
+  // Validação do id da lista
+  $list_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+  if ($list_id <= 0) {
+    die("ID da lista inválido");
+  }
+
+  // Obtém as informações da lista
   $sql = "SELECT * FROM list WHERE id = $list_id";
   $list = mysqli_query($conn, $sql);
-
-  if (mysqli_num_rows($list) > 0) {
-    $row = mysqli_fetch_assoc($list);
-    $list_name = $row['name'];
+  if (!$list || mysqli_num_rows($list) == 0) {
+    die("Lista não encontrada");
   }
+  $list = mysqli_fetch_assoc($list);
+  $list_name = $list['name'];
 
-
-  $values = $_GET['productid'];
-
-  if($values !== ''){
-
+  // Obtém o ID do produto se ele existir
+  $product_id = 1;
+  $values = isset($_GET['productid']) ? $_GET['productid'] : '';
+  if (!empty($values)) {
     if (preg_match('/list-(.*?)-product/', $values , $match) == 1) {
-        $list_id = $match[1];
+      $list_id = intval($match[1]);
     }
-      
-      
-
     if (preg_match('/product-(.*?)-/', $values , $match) == 1) {
-        $product_id = $match[1];
+      $product_id = intval($match[1]);
     }
   }
 
+  // Obtém a lista de produtos
   $sql = "SELECT list_product.list_id as list_id,  list_product.state  as list_state ,product.*, category.name as category_name FROM product
-      JOIN list_product ON list_product.product_id = product.id
-      JOIN category ON product.category_id = category.id
-      WHERE list_product.list_id = $list_id";
+    JOIN list_product ON list_product.product_id = product.id
+    JOIN category ON product.category_id = category.id
+    WHERE list_product.list_id = $list_id";
   $products = mysqli_query($conn, $sql);
 
-  $current_url = 'http://' . $_SERVER['HTTP_HOST'];
-  $parsed_url = parse_url($current_url . $_SERVER['REQUEST_URI']);
-  $current_dir = dirname($parsed_url['path']);
-  $url = $current_url . $current_dir;
-
+  // Obtém informações do usuário logado
   $email = $_SESSION['email'];
-
-  $sql = "SELECT * FROM user WHERE email='$email'";
-  $result = mysqli_query($conn, $sql);
-
+  $sql = "SELECT * FROM user WHERE email=?";
+  $stmt = $conn->prepare($sql);
+  $stmt->bind_param("s", $email);
+  $stmt->execute();
+  $result = $stmt->get_result();
 
   if (mysqli_num_rows($result) > 0) {
       // Output data of each row
@@ -119,21 +119,30 @@
         }
       }
 
+
+      if(isset($_POST['productid'])) {
+        $product_id = $_POST['id'];
+        $sql = "SELECT state FROM list_product WHERE id = '$product_id'";
+        $result = mysqli_query($conn, $sql);
+        $current_state = mysqli_fetch_assoc($result)['state'];
+        $current_state = 1; // supondo que o estado atual do produto seja 1
+        $new_state = ($current_state == 0) ? 1 : 0;
+        $sql = "UPDATE list_product SET state = '$new_state' WHERE id = '$product_id'";
+        mysqli_query($conn, $sql);
+       }
+
       if (isset($_POST['update_state'])) {
-        $list_id = $_GET['id'];
-        $product_id = $_POST['product_id'];
-        $state = $_POST['state'];
-        $new_state = $state == 0 ? 1 : 0;
-        if ($new_state == 1) {
-          $product_row['state'] = 1;
-        } else {
-          $product_row['state'] = 0;
-        }
+        $list_id = mysqli_real_escape_string($conn, $_GET['id']);
+        $product_id = mysqli_real_escape_string($conn, $_POST['product_id']);
+        $state = mysqli_real_escape_string($conn, $_POST['state']);
+        $new_state = ($state == 0) ? 1 : 0;
         $sql = "UPDATE list_product SET state = $new_state WHERE list_id = $list_id AND product_id = $product_id";
-        if (!mysqli_query($conn, $sql)) {
+        $result = mysqli_query($conn, $sql);
+        if (!$result) {
           echo "Erro ao atualizar o estado do produto: " . mysqli_error($conn);
         }
-      } 
+      }
+      
       
       if (isset($_POST['signout'])) {
           session_destroy();
@@ -146,7 +155,7 @@
 
 
 <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="index.php">Shopping List</a>
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="/shoppinglist">Shopping List</a>
   <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -169,10 +178,10 @@
   <main class="col-md-12 ms-sm-auto col-lg-12 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2"><?php echo $list_name ?></h1>
-        <button type="button" class="btn btn-danger btn-close" aria-label="Close" onClick="location.href='index.php'"></button>
+        <button type="button" class="btn btn-danger btn-close" aria-label="Close" onClick="location.href='/shoppinglist'"></button>
       </div>
 
-      <form method="get" action="list.php" >
+  <form method="post" >
         
       <table class="table table-striped">
         <thead>
@@ -189,8 +198,7 @@
                 <td><?php echo $product_row["name"] ?></td>
                 <td><?php echo $product_row["category_name"] ?></td>
                 <td>
-                  <button name="productid" value="<?php echo 'list'.'-' . $product_row["list_id"] . '-' . 'product' . '-' . $product_row["id"] . '-' . 'state' . '-'.  $product_row["list_state"] ?>" type="submit" onclick="checkProduct(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary">Acquired</button>
-                </td>
+                  <button name="productid" value="<?php echo 'list'.'-' . $product_row["list_id"] . '-' . 'product' . '-' . $product_row["id"] . '-' ?>" type="submit" onclick="checkProduct(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary" data-product-id="<?php echo $product_row["id"] ?>" data-state="<?php echo $product_row["state"] ?>">Acquired</button></td>
                 <td>
                   <button name="refresh" value="<?php echo 'list'.'-' . $product_row["list_id"] . '-' . 'product' . '-' . $product_row["id"] . '-' . 'state' . '-'.  $product_row["list_state"] ?>" type="button" onclick="getData(this)" id="strike-button-<?php echo $product_row["id"] ?>" class="btn btn-secondary">Refresh</button>
                 </td>
@@ -208,32 +216,52 @@
       </button>
     </div>
 
-    </form>
+  </form>
   </main>
   </div>
 </div>
 
 <script>
-function getData(e){
-  let value = e.value;
-   var n = value.lastIndexOf('-');
-   var result = value.substring(n + 1);
-   let idButton = e.id;
-   let indexString = idButton.lastIndexOf('-');
-   let index =  idButton.substring(indexString + 1);
-   if(parseInt(result)){
+  function getData(e){
+    let value = e.value;
+    var n = value.lastIndexOf('-');
+    var result = value.substring(n + 1);
+    let idButton = e.id;
+    let indexString = idButton.lastIndexOf('-');
+    let index =  idButton.substring(indexString + 1);
+    if(parseInt(result)){
     let element = document.querySelector(`#list-${index} td:first-child`);
-    element.classList.toggle('text-strike');
+    element.classList.add("text-strike");
+    }
   }
-}
- function checkProduct(e){
-   let idButton = e.id;
-   let indexString = idButton.lastIndexOf('-');
-   let index =  idButton.substring(indexString + 1);
-   let element = document.querySelector(`#list-${index} td:first-child`);
-   element.classList.toggle('text-strike');
- }
+  
+  function checkProduct(e){
+  let idButton = e.id;
+  let indexString = idButton.lastIndexOf('-');
+  let index =  idButton.substring(indexString + 1);
+  let element = document.querySelector(`#list-${index} td:first-child`);
+  let productId = e.dataset.productId;
+  let state = e.dataset.state;
+  let newState = state == 0 ? 1 : 0;
+  element.classList.toggle('text-strike');
+  let url = `update_state.php?product_id=${productId}&state=${newState}`;
+  fetch(url, { method: 'post' })
+     .then(response => response.json())
+     .then(data => {
+       if (data.success) {
+         alert('Estado atualizado com sucesso');
+       } else {
+         alert('Ocorreu um erro ao atualizar o estado');
+       }
+     })
+     .catch(error => {
+       console.error(error);
+       alert('Ocorreu um erro ao atualizar o estado');
+     });
+  }
+
 </script>
+
 
 <script>
   document.getElementById("shareBtn").addEventListener("click", function() {
